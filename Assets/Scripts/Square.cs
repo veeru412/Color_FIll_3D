@@ -11,14 +11,28 @@ public class Square : MonoBehaviour
     public MeshRenderer mesh;
     [HideInInspector]
     public GameObject obstracle;
+    public SquareType squareType;
     private void Awake()
     {
         mesh = GetComponent<MeshRenderer>();
         _color = 0;
     }
-    bool canMove = true;
+    private void Start()
+    {
+        Collider[] cols = Physics.OverlapSphere(transform.position, 0.1f);
+        for (int i = 0; i < cols.Length; i++)
+        {
+            if (cols[i].tag == "wall")
+            {
+                squareType = SquareType.None;
+            }
+        }
+    }
+
     public void SetPixel(int no)
     {
+        if (_color == no)
+            return;
         mesh.material = GameManager.instance.tileMats[no];
         _color = no;
         if(no == 1)
@@ -27,10 +41,7 @@ public class Square : MonoBehaviour
         }
         else if(_color == 2)
         {
-            if (canMove)
-            {
-                StartCoroutine(Animate());
-            }
+            StartCoroutine(Animate());
         }else
         {
             Vector3 upPos = transform.localPosition;
@@ -40,7 +51,6 @@ public class Square : MonoBehaviour
     }
     IEnumerator Animate()
     {
-        canMove = false;
         Vector3 upPos = transform.localPosition + Vector3.up * 0.25f;
         float progress = 0.0f;
         while (progress <= 1.0f)
@@ -50,13 +60,7 @@ public class Square : MonoBehaviour
             yield return null;
         }
         transform.localPosition = upPos;
-        if (obstracle)
-        {
-            Destroy(obstracle);
-            GameObject g = Instantiate(GameManager.instance.cubeParticles, transform.position,Quaternion.identity);
-            Destroy(g, 1f);
-        }
-        canMove = true;
+        GetComponent<Collider>().enabled = true;
     }
     public int GetMatches()
     {
@@ -98,6 +102,11 @@ public class Square : MonoBehaviour
             }
         }
         return matches;
-    }
-    
+    }    
+}
+public enum SquareType
+{ 
+    Empty,
+    None,
+    Obstracle,
 }

@@ -4,11 +4,16 @@ using UnityEngine;
 
 public class Obstracle : MonoBehaviour
 {
-    public int row;
-    public int col;
-
-    private void Start()
+    private void OnTriggerEnter(Collider other)
     {
-        GameManager.instance.GetBlock(row, col).obstracle = gameObject;
+        if(other.tag == "Player")
+        {
+            GameManager.instance.gameState = GameState.GameOver;
+        }
+        else if(other.tag == "cube")
+        {
+            GameManager.instance.DestroyObstracle(other.transform);
+            Destroy(gameObject);
+        }
     }
 }

@@ -37,13 +37,13 @@ namespace ColorFill.Core
                         mSquare.SetPixel(1);
                         if (target != null && target._color == 2)
                         {
-                            GameManager.instance.Fill();
+                            GameManager.instance.Fill(true);
                         }
                     }
 
                     if (target != null)
                     {
-                        if (target._color == 1 || target.obstracle != null)
+                        if (target._color == 1)
                         {
                             Destroy(gameObject);
                             GameManager.instance.gameState = GameState.GameOver;
@@ -70,7 +70,6 @@ namespace ColorFill.Core
         }
         IEnumerator ToNextLevel()
         {
-            yield return new WaitForSeconds(1.0f);
             Vector3 targetPos = mTransform.localPosition;
             targetPos.x = 0;
             while(Vector3.Distance(mTransform.localPosition,targetPos) > 0.05f)
@@ -78,10 +77,10 @@ namespace ColorFill.Core
                 mTransform.localPosition = Vector3.Lerp(mTransform.localPosition, targetPos, Time.deltaTime * 5);
                 yield return null;
             }
-            Square startTile = GameManager.instance.GetBlock(0, 4);
+            yield return new WaitForSeconds(1f);
+            Square startTile = GameManager.instance.GetBlock(0, 5);
             mSquare = startTile;
-            targetPos = mSquare.transform.position + Vector3.forward*19;
-            GameManager.instance.lvl2.SetActive(true);
+            targetPos = mSquare.transform.position;
             Vector3 camPos = Camera.main.transform.position + Vector3.forward * 19;
             while (Vector3.Distance(mTransform.localPosition, targetPos) > 0.05f)
             {
@@ -89,7 +88,6 @@ namespace ColorFill.Core
                 Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, camPos, Time.deltaTime * 3);
                 yield return null;
             }
-            GameManager.instance.ChangeGridPos(); 
             startTile.SetPixel(2);
             yield return new WaitForEndOfFrame();
             GameManager.instance.gameState = GameState.Playing;
